@@ -21,11 +21,11 @@ import (
 type AppConfigWithCliCommands struct {
 	commands.AvailableCommands
 	commands.ExperimentalCommands
-	config.Config
+	*config.Config
 }
 
 // Run starts the app in cli interface mode
-func Run(ctx context.Context, walletMiddleware app.WalletMiddleware, appConfig config.Config) error {
+func Run(ctx context.Context, walletMiddleware app.WalletMiddleware, appConfig *config.Config) error {
 	configWithCommands := &AppConfigWithCliCommands{
 		Config: appConfig,
 	}

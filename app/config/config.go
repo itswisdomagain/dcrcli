@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"reflect"
 	"strings"
 
 	"github.com/decred/dcrd/dcrutil"
-	"github.com/jessevdk/go-flags"
+	"github.com/spf13/viper"
 )
 
 const (
@@ -70,8 +69,8 @@ func defaultFileOptions() ConfFileOptions {
 }
 
 // defaultConfig an instance of Config with the defaults set.
-func defaultConfig() Config {
-	return Config{
+func defaultConfig() *Config {
+	return &Config{
 		ConfFileOptions: defaultFileOptions(),
 	}
 }
@@ -79,7 +78,7 @@ func defaultConfig() Config {
 // LoadConfig parses program configuration from both command-line args and godcr config file, ignoring unknown options and the help flag
 // While unknown options seen on the command line are ignored, unknown options in the configuration file return an error.
 // Returns the parsed config object, any command-line args that could not be parsed and any error encountered
-func LoadConfig() (Config, []string, error) {
+func LoadConfig() (*Config, []string, error) {
 	// check if config file does not exist and create it before proceeding
 	var configFileExists bool
 	if _, err := os.Stat(AppConfigFilePath); os.IsNotExist(err) {
@@ -88,43 +87,64 @@ func LoadConfig() (Config, []string, error) {
 		configFileExists = true
 	}
 
-	// load default config values and create parser object with it
-	config := defaultConfig()
-	parser := flags.NewParser(&config, flags.IgnoreUnknown)
-
-	// parse command-line args and return any error encountered
-	unknownArgs, err := parser.Parse()
-	if err != nil {
-		return config, unknownArgs, err
-	}
-
 	// check if any of the unknown command-line args belong in the config file and alert user to set such values in config file only
-	if hasConfigFileOption(unknownArgs) {
-		return config, unknownArgs, fmt.Errorf("Unexpected command-line flag/option, "+
+	if hasConfigFileOption(os.Args) && configFileExists {
+		return nil, os.Args, fmt.Errorf("Unexpected command-line flag/option, "+
 			"see godcr -h for supported command-line flags/options"+
 			"\nSet other flags/options in %s", AppConfigFilePath)
 	}
 
-	// if config file doesn't exist, no need to attempt to parse and then re-parse command-line args
-	if !configFileExists {
-		return config, unknownArgs, nil
-	}
-
-	// Load additional config from file
-	err = parseConfigFile(parser)
+	// parse command-line args and return any error encountered
+	err := viper.ReadInConfig()
 	if err != nil {
-		return config, unknownArgs, err
+		return nil, os.Args, err
 	}
 
-	// Parse command line options again to ensure they take precedence.
-	unknownArgs, err = parser.Parse()
+	var commandLineConfig CommandLineOptions
+	err = viper.Unmarshal(&commandLineConfig)
+	if err != nil {
+		return nil, os.Args, err
+	}
+	fmt.Println(commandLineConfig)
+
+	// load default config-file options
+	config := defaultConfig()
+	config.CommandLineOptions = commandLineConfig
+
+	//var commandLineConfig CommandLineOptions
+	//err := viper.ReadInConfig()
+	//if err != nil {
+	//	return nil, os.Args, err
+	//}
+	//err = viper.Unmarshal(&commandLineConfig)
+	//if err != nil {
+	//	return nil, os.Args, err
+	//}
+
+	//// parse config-file options
+	//configFileOptions := defaultFileOptions()
+	//viper.SetConfigFile(AppConfigFilePath)
+	//
+	//// if config file doesn't exist, no need to attempt to parse and then re-parse command-line args
+	//if !configFileExists {
+	//	return config, unknownArgs, nil
+	//}
+	//
+	//// Load additional config from file
+	//err = parseConfigFile(parser)
+	//if err != nil {
+	//	return config, unknownArgs, err
+	//}
+	//
+	//// Parse command line options again to ensure they take precedence.
+	//unknownArgs, err = parser.Parse()
 
 	// return parsed config, unknown args encountered and any error that occurred during last parsing
-	return config, unknownArgs, err
+	return config, os.Args, err
 }
 
 // hasConfigFileOption checks if an unknown arg found in command-line is a config file option that should only be set in the config file
-func hasConfigFileOption(unknownArgs []string) bool {
+func hasConfigFileOption(args []string) bool {
 	configFileOptions := configFileOptions()
 	isConfigFileOption := func(option string) bool {
 		for _, configFileOption := range configFileOptions {
@@ -135,28 +155,11 @@ func hasConfigFileOption(unknownArgs []string) bool {
 		return false
 	}
 
-	for _, arg := range unknownArgs {
+	for _, arg := range args {
 		if isConfigFileOption(strings.TrimSpace(arg)) {
 			return true
 		}
 	}
 
 	return false
-}
-
-// configFileOptions returns a slice of the short names and long names of all config file options
-func configFileOptions() (options []string) {
-	tConfFileOptions := reflect.TypeOf(ConfFileOptions{})
-	for i := 0; i < tConfFileOptions.NumField(); i++ {
-		fieldTag := tConfFileOptions.Field(i).Tag
-
-		if shortName, ok := fieldTag.Lookup("short"); ok {
-			options = append(options, "-"+shortName)
-		}
-
-		if longName, ok := fieldTag.Lookup("long"); ok {
-			options = append(options, "--"+longName)
-		}
-	}
-	return
 }

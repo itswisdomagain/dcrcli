@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"text/template"
 
@@ -99,4 +100,21 @@ func UpdateConfigFile(option string, newValue interface{}, removeComment bool) e
 	err = ioutil.WriteFile(AppConfigFilePath, []byte(updatedConfigText), os.ModePerm)
 
 	return err
+}
+
+// configFileOptions returns a slice of the short names and long names of all config file options
+func configFileOptions() (options []string) {
+	tConfFileOptions := reflect.TypeOf(ConfFileOptions{})
+	for i := 0; i < tConfFileOptions.NumField(); i++ {
+		fieldTag := tConfFileOptions.Field(i).Tag
+
+		if shortName, ok := fieldTag.Lookup("short"); ok {
+			options = append(options, "-"+shortName)
+		}
+
+		if longName, ok := fieldTag.Lookup("long"); ok {
+			options = append(options, "--"+longName)
+		}
+	}
+	return
 }
