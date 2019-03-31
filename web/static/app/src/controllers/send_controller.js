@@ -78,6 +78,11 @@ export default class extends Controller {
       }
       amountField.value = changeOutputs[0].Amount
       _this.calculateCustomInputsPercentage()
+    }, (err) => {
+      if (err.indexOf('total input amount not enough to cover transaction') > -1) {
+        return
+      }
+      _this.setErrorMessage(err)
     })
   }
 
@@ -108,12 +113,12 @@ export default class extends Controller {
   removeDestination () {
     if (this.destinationCount > 1) {
       this.destinationsTarget.removeChild(this.destinationsTarget.querySelector('div.destination:last-child'))
+      this.destinationCount--
     }
+
     if (this.destinationCount <= 1) {
       this.hide(this.removeDestinationButtonTarget)
     }
-
-    this.destinationCount--
   }
 
   toggleSpendUnconfirmed () {
@@ -298,7 +303,7 @@ export default class extends Controller {
     })
   }
 
-  getRandomChangeOutputs (numberOfOutputs, successCallback) {
+  getRandomChangeOutputs (numberOfOutputs, successCallback, errorCallback) {
     this.generatingChangeOutputs = true
     this.generatedChangeOutputsTarget.innerHTML = ''
     this.generateOutputsButtonTarget.setAttribute('disabled', 'disabled')
@@ -323,13 +328,16 @@ export default class extends Controller {
       .then((response) => {
         let result = response.data
         if (result.error !== undefined) {
+          if (errorCallback) {
+            errorCallback(result.error)
+            return
+          }
           _this.setErrorMessage(result.error)
         } else {
           successCallback(result.message)
         }
       })
-      .catch((error) => {
-        console.log(error)
+      .catch(() => {
         _this.setErrorMessage('A server error occurred')
       })
       .then(() => {
