@@ -92,17 +92,15 @@ func BuildTxDestinations(destinationAddresses []string, destinationAmounts []str
 	return
 }
 
-func GetAllUtoxs(walletMiddleware Wallet, accountNumber uint32, requiredConfirmations int) ([]string, float64, error) {
+func GetAllUtxos(walletMiddleware Wallet, accountNumber uint32, requiredConfirmations int) (utxos []string, total float64, err error) {
 	allUtxos, err := walletMiddleware.UnspentOutputs(accountNumber, 0, int32(requiredConfirmations))
 	if err != nil {
 		return nil, 0, err
 	}
 
-	var total float64
-	var utxos []string
 	for _, utxo := range allUtxos {
 		utxos = append(utxos, utxo.OutputKey)
 		total += utxo.Amount.ToCoin()
 	}
-	return utxos, total, nil
+	return
 }
