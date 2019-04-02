@@ -92,15 +92,23 @@ func BuildTxDestinations(destinationAddresses []string, destinationAmounts []str
 	return
 }
 
-func GetAllUtxos(walletMiddleware Wallet, accountNumber uint32, requiredConfirmations int) (utxos []string, total float64, err error) {
+func GetAllUtxos(walletMiddleware Wallet, accountNumber uint32, requiredConfirmations int) (utxos []string, total int64, err error) {
 	allUtxos, err := walletMiddleware.UnspentOutputs(accountNumber, 0, int32(requiredConfirmations))
 	if err != nil {
 		return nil, 0, err
 	}
 
+	var totalInputAmountDcr float64
 	for _, utxo := range allUtxos {
 		utxos = append(utxos, utxo.OutputKey)
-		total += utxo.Amount.ToCoin()
+		totalInputAmountDcr += utxo.Amount.ToCoin()
 	}
+
+	totalInputAmount, err := dcrutil.NewAmount(totalInputAmountDcr)
+	if err != nil {
+		return
+	}
+
+	total = int64(totalInputAmount)
 	return
 }
