@@ -92,8 +92,8 @@ func BuildTxDestinations(destinationAddresses []string, destinationAmounts []str
 	return
 }
 
-func GetAllUtxos(walletMiddleware Wallet, accountNumber uint32, requiredConfirmations int) (utxos []string, total int64, err error) {
-	allUtxos, err := walletMiddleware.UnspentOutputs(accountNumber, 0, int32(requiredConfirmations))
+func GetAllUtxos(walletMiddleware Wallet, accountNumber uint32, requiredConfirmations int32) (utxos []string, total int64, err error) {
+	allUtxos, err := walletMiddleware.UnspentOutputs(accountNumber, 0, requiredConfirmations)
 	if err != nil {
 		return nil, 0, err
 	}
