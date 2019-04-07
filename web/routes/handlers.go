@@ -100,24 +100,27 @@ func (routes *Routes) maxSendAmount(res http.ResponseWriter, req *http.Request) 
 		}
 	}
 
-	selectedAddress := req.FormValue("selected-address")
-
-	// add selected address to destination so the fee for the address will be consider in the estimated change
-	payload.sendDestinations = append(payload.sendDestinations, txhelper.TransactionDestination{Address:selectedAddress})
-
 	if payload.totalSendAmount >= payload.totalInputAmount {
 		data["error"] = "Total send amount is already at maximum"
 		return
 	}
 
-	changeAmount, err := txhelper.EstimateChange(len(payload.utxos), payload.totalInputAmount, payload.sendDestinations, []string{selectedAddress})
+	maxSendAmount, err := txhelper.EstimateMaxSendAmount(len(payload.utxos), payload.totalInputAmount, payload.sendDestinations)
+	if maxSendAmount < 0 {
+		excessSpending := 0 - maxSendAmount // equivalent to math.Abs()
+		data["error"] = fmt.Sprintf("Error in getting max send amount: " +
+			"total send amount plus tx fee will be higher than the total input amount by %s",
+			dcrutil.Amount(excessSpending).String())
+		return
+	}
 
 	if err != nil {
 		data["error"] = fmt.Sprintf("Error in getting max send amount: %s", err.Error())
 		return
 	}
-	data["amount"] = dcrutil.Amount(changeAmount).ToCoin()
+	data["amount"] = dcrutil.Amount(maxSendAmount).ToCoin()
 }
+
 func (routes *Routes) submitSendTxForm(res http.ResponseWriter, req *http.Request) {
 	data := map[string]interface{}{}
 	defer renderJSON(data, res)
@@ -130,6 +133,7 @@ func (routes *Routes) submitSendTxForm(res http.ResponseWriter, req *http.Reques
 
 	var txHash string
 	if payload.useCustom {
+		// todo check this
 		if len(payload.changeDestinations) < 1 {
 			payload.changeDestinations, err = walletcore.GetChangeDestinationsWithRandomAmounts(routes.walletMiddleware, 1, payload.totalInputAmount,
 				payload.sourceAccount, len(payload.utxos), payload.sendDestinations)

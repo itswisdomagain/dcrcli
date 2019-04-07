@@ -224,6 +224,7 @@ func (c *WalletRPCClient) UnspentOutputs(account uint32, targetAmount int64, req
 	return unspentOutputs, nil
 }
 
+// todo function needs fixing
 func (c *WalletRPCClient) SendFromAccount(sourceAccount uint32, requiredConfirmations int32, destinations []txhelper.TransactionDestination, passphrase string) (string, error) {
 	// construct non-change outputs for all recipients
 	outputs := make([]*walletrpc.ConstructTransactionRequest_Output, len(destinations))
@@ -256,6 +257,7 @@ func (c *WalletRPCClient) SendFromAccount(sourceAccount uint32, requiredConfirma
 	return c.signAndPublishTransaction(constructResponse.UnsignedTransaction, passphrase)
 }
 
+// todo function needs fixing
 func (c *WalletRPCClient) SendFromUTXOs(sourceAccount uint32, requiredConfirmations int32, utxoKeys []string, txDestinations []txhelper.TransactionDestination, changeDestinations []txhelper.TransactionDestination, passphrase string) (string, error) {
 	// fetch all utxos in account to extract details for the utxos selected by user
 	// passing 0 as targetAmount to c.unspentOutputStream fetches ALL utxos in account
@@ -300,7 +302,8 @@ func (c *WalletRPCClient) SendFromUTXOs(sourceAccount uint32, requiredConfirmati
 		}
 	}
 
-	unsignedTx, err := txhelper.NewUnsignedTx(inputs, txDestinations, changeDestinations)
+	// todo function needs fixing
+	unsignedTx, err := txhelper.NewUnsignedTx(inputs, nil, changeDestinations)
 	if err != nil {
 		return "", err
 	}

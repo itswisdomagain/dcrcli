@@ -77,20 +77,27 @@ func GetChangeDestinationsWithRandomAmounts(wallet Wallet, nChangeOutputs int, a
 	return
 }
 
-func BuildTxDestinations(destinationAddresses []string, destinationAmounts []string) (destinations []txhelper.TransactionDestination, err error) {
+func BuildTxDestinations(destinationAddresses, destinationAmounts, sendMaxAmountValues []string) (destinations []txhelper.TransactionDestination, err error) {
 	for i := range destinationAddresses {
-		var destination []txhelper.TransactionDestination
-		amount, err := strconv.ParseFloat(destinationAmounts[i], 64)
-		if err != nil {
-			return destinations, err
-		}
-		if amount == 0 {
-			continue
-		}
-		destinations = append(destination, txhelper.TransactionDestination{
+		destination := txhelper.TransactionDestination{
 			Address: destinationAddresses[i],
-			Amount:  amount,
-		})
+			SendMax: sendMaxAmountValues[i] == "true",
+		}
+
+		if !destination.SendMax {
+			destination.Amount, err = strconv.ParseFloat(destinationAmounts[i], 64)
+			if err != nil {
+				err = fmt.Errorf("invalid destination amount: %s", destinationAmounts[i])
+				return
+			}
+		}
+
+		if destination.Amount == 0 && !destination.SendMax {
+			err = fmt.Errorf("invalid request, cannot send 0 amount to %s", destination.Address)
+			return
+		}
+
+		destinations = append(destinations, destination)
 	}
 	return
 }

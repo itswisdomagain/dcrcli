@@ -58,6 +58,10 @@ table td {
   border-radius: 0;
 }
 
+.form-group.form-check.disabled {
+  opacity: 0.65;
+}
+
 .error {
   color: brown;
 }

@@ -8,7 +8,8 @@ export default class extends Controller {
       'form',
       'sourceAccount',
       'spendUnconfirmed',
-      'destinations', 'destinationTemplate', 'address', 'amount', 'removeDestinationButton', 'maxSendAmountButton',
+      'destinations', 'destinationTemplate', 'address', 'amount', 'maxSendAmountCheck',
+      'removeDestinationButton',
       'useCustom', 'fetchingUtxos', 'utxoSelectionProgressBar', 'customInputsTable',
       'changeOutputs', 'numberOfChangeOutputs', 'useRandomChangeOutputs', 'generateOutputsButton', 'generatedChangeOutputs',
       'changeOutputTemplate', 'changeOutputPercentage', 'changeOutputAmount',
@@ -31,15 +32,27 @@ export default class extends Controller {
 
     const destinationTemplate = document.importNode(this.destinationTemplateTarget.content, true)
 
-    const addressInput = destinationTemplate.querySelector('input[name="destination-address"]')
-    const amountInput = destinationTemplate.querySelector('input[name="destination-amount"]')
-    const sendMaxButton = destinationTemplate.querySelector('button[type="button"]')
+    const destinationNode = destinationTemplate.firstElementChild
+    const addressInput = destinationNode.querySelector('input[name="destination-address"]')
+    const amountInput = destinationNode.querySelector('input[name="destination-amount"]')
+    const sendMaxCheckbox = destinationNode.querySelector('input[type="checkbox"]')
 
+    destinationNode.setAttribute('data-index', this.destinationCount)
     addressInput.setAttribute('data-index', this.destinationCount)
     amountInput.setAttribute('data-index', this.destinationCount)
-    sendMaxButton.setAttribute('data-index', this.destinationCount)
+    sendMaxCheckbox.setAttribute('data-index', this.destinationCount)
+
+    // make clicking on the label toggle the checkbox by setting unique id
+    destinationTemplate.querySelector('.form-check-label').setAttribute('for', `send-max-amount-${this.destinationCount}`)
+    sendMaxCheckbox.setAttribute('id', `send-max-amount-${this.destinationCount}`)
 
     this.destinationsTarget.appendChild(destinationTemplate)
+
+    // disable checkbox if some other checkbox is currently checked
+    if (this.maxSendDestinationIndex >= 0) {
+      sendMaxCheckbox.setAttribute('readonly', 'readonly')
+      sendMaxCheckbox.parentElement.classList.add('disabled')
+    }
 
     this.destinationCount++
 
@@ -48,52 +61,87 @@ export default class extends Controller {
     }
   }
 
-  setMaxAmountForDestination (event) {
-    const targetElement = event.currentTarget
-    const index = parseInt(targetElement.getAttribute('data-index'))
-
-    let amountField
-    this.amountTargets.forEach(el => {
-      if (index === parseInt(el.getAttribute('data-index'))) {
-        amountField = el
-      }
-    })
-    const currentAmount = amountField.value
-    // temporarily set the destination amount field (if empty) to make destination validation pass
-    if (!(parseInt(currentAmount) > 0)) {
-      amountField.value = 1
+  destinationAmountEdited (event) {
+    // update max send amount field if some other amount field has been updated
+    const editedAmountFieldIndex = event.target.getAttribute('data-index')
+    if (this.maxSendDestinationIndex !== editedAmountFieldIndex) {
+      this.updateMaxAmountFieldIfSet()
     }
-    if (!this.destinationFieldsValid()) {
-      amountField.value = currentAmount
+
+    this.calculateCustomInputsPercentage()
+  }
+
+  maxSendAmountCheckboxToggle (event) {
+    this.setMaxAmountForDestination(event.currentTarget)
+  }
+
+  updateMaxAmountFieldIfSet () {
+    if (this.maxSendDestinationIndex >= 0) {
+      const activeSendMaxCheckbox = document.getElementById(`send-max-amount-${this.maxSendDestinationIndex}`)
+      this.setMaxAmountForDestination(activeSendMaxCheckbox)
+    }
+  }
+
+  setMaxAmountForDestination (sendMaxCheckbox) {
+    if (sendMaxCheckbox.hasAttribute('readonly')) {
+      sendMaxCheckbox.checked = false
       return
     }
-    let _this = this
-    // set the destination amount to zero and get the server calculated value
-    amountField.value = 0
 
-    let selectedAddress
-    this.addressTargets.forEach(el => {
-      if (index === parseInt(el.getAttribute('data-index'))) {
-        selectedAddress = el.value
-      }
+    const index = parseInt(sendMaxCheckbox.getAttribute('data-index'))
+    const destinationNode = document.querySelector(`div.destination[data-index="${index}"]`)
+    const amountField = destinationNode.querySelector('input[name="destination-amount"]')
+
+    this.maxSendDestinationIndex = index
+    const currentAmount = amountField.value
+    amountField.setAttribute('readonly', 'readonly')
+    this.maxSendAmountCheckTargets.forEach(checkbox => {
+      checkbox.setAttribute('readonly', 'readonly')
+      checkbox.parentElement.classList.add('disabled')
     })
 
-    this.getMaxSendAmount(selectedAddress, amount => {
+    const uncheckCurrentMaxCheckbox = () => {
+      sendMaxCheckbox.checked = false
+      this.maxSendDestinationIndex = -1
+      amountField.value = currentAmount
+      amountField.removeAttribute('readonly')
+      this.maxSendAmountCheckTargets.forEach(checkbox => {
+        checkbox.removeAttribute('readonly')
+        checkbox.parentElement.classList.remove('disabled')
+      })
+    }
+
+    if (!sendMaxCheckbox.checked) {
+      uncheckCurrentMaxCheckbox()
+      amountField.value = ''
+      return
+    }
+
+    // temporarily set the destination amount field to 1 to make destination validation pass
+    // value will be reset afterwards if there are other destination validation errors or if getting max amount fails
+    amountField.value = 1
+    if (!this.destinationFieldsValid()) {
+      uncheckCurrentMaxCheckbox()
+      return
+    }
+
+    amountField.value = ''
+    let _this = this
+    this.getMaxSendAmount(amount => {
       amountField.value = amount
+      sendMaxCheckbox.removeAttribute('readonly')
+      sendMaxCheckbox.parentElement.classList.remove('disabled')
       _this.resetChangeOutput()
       _this.calculateCustomInputsPercentage()
     }, (errMsg) => {
+      uncheckCurrentMaxCheckbox()
       _this.setErrorMessage(errMsg)
     })
   }
 
-  getMaxSendAmount (selectedAddress, successCallback, errorCallback) {
-    this.maxSendAmountButtonTargets.forEach(el => {
-      el.setAttribute('disabled', 'disabled')
-    })
-
+  getMaxSendAmount (successCallback, errorCallback) {
     let queryParams = $('#send-form').serialize()
-    queryParams += `&selected-address=${selectedAddress}&totalSelectedInputAmountDcr=${this.getSelectedInputsSum()}`
+    queryParams += `&totalSelectedInputAmountDcr=${this.getSelectedInputsSum()}`
     if (this.spendUnconfirmedTarget.checked) {
       queryParams += '&spend-unconfirmed=true'
     }
@@ -110,13 +158,13 @@ export default class extends Controller {
           _this.setErrorMessage(result.error)
         }
       })
-      .catch(() => {
-        _this.setErrorMessage('A server error occurred')
-      })
-      .then(() => {
-        _this.maxSendAmountButtonTargets.forEach(el => {
-          el.removeAttribute('disabled')
-        })
+      .catch(e => {
+        console.log(e)
+        if (errorCallback) {
+          errorCallback('A server error occurred')
+        } else {
+          _this.setErrorMessage('A server error occurred')
+        }
       })
   }
 
@@ -126,18 +174,24 @@ export default class extends Controller {
 
     for (const addressTarget of this.addressTargets) {
       if (addressTarget.value === '') {
-        this.showError('Destination address should not be empty')
+        addressTarget.nextElementSibling.innerText = 'Destination address should not be empty'
+        addressTarget.classList.add('is-invalid')
         fieldsAreValid = false
-        break
+      } else {
+        addressTarget.nextElementSibling.innerText = ''
+        addressTarget.classList.remove('is-invalid')
       }
     }
 
     for (const amountTarget of this.amountTargets) {
       const amount = parseFloat(amountTarget.value)
       if (isNaN(amount) || amount <= 0) {
-        this.showError('Amount must be a non-zero positive number')
+        amountTarget.nextElementSibling.innerText = 'Amount must be a non-zero positive number'
+        amountTarget.classList.add('is-invalid')
         fieldsAreValid = false
-        break
+      } else {
+        amountTarget.nextElementSibling.innerText = ''
+        amountTarget.classList.remove('is-invalid')
       }
     }
 
@@ -146,8 +200,26 @@ export default class extends Controller {
 
   removeDestination () {
     if (this.destinationCount > 1) {
-      this.destinationsTarget.removeChild(this.destinationsTarget.querySelector('div.destination:last-child'))
+      const lastDestinationNode = this.destinationsTarget.querySelector('div.destination:last-child')
+      const lastAmount = parseFloat(lastDestinationNode.querySelector('input[name="destination-amount"]').value)
+
+      const lastAddressIndex = lastDestinationNode.getAttribute('data-index')
+      if (this.maxSendDestinationIndex >= lastAddressIndex) {
+        // previously set max send destination is removed, enable other checkboxes
+        this.maxSendDestinationIndex = -1
+        this.maxSendAmountCheckTargets.forEach(checkbox => {
+          checkbox.removeAttribute('readonly')
+          checkbox.parentElement.classList.remove('disabled')
+        })
+      }
+
+      this.destinationsTarget.removeChild(lastDestinationNode)
       this.destinationCount--
+
+      if (!isNaN(lastAmount) && lastAmount > 0) {
+        // update max send amount field if the destination field that was removed had a positive send amount
+        this.updateMaxAmountFieldIfSet()
+      }
     }
 
     if (this.destinationCount <= 1) {
