@@ -3,7 +3,6 @@ package dcrlibwallet
 import (
 	"context"
 	"fmt"
-	//"io/ioutil"
 	"time"
 
 	"github.com/raedahgroup/godcr/app"
@@ -88,10 +87,6 @@ func (lib *DcrWalletLib) SyncBlockChain(listener *app.BlockChainSyncListener, sh
 		activeNet: lib.activeNet,
 	}
 	lib.walletLib.AddSyncResponse(syncResponse)
-
-	//cert, _ := ioutil.ReadFile("/Users/itswisdomagain/Library/Application Support/Dcrd/rpc.cert")
-	//err := lib.walletLib.RpcSync("127.0.0.1:19109", "QtMSVCqq0V7y3fHIw9xG2on2pK0=",
-	//	"IMyBYg3SY6eOyL6oCL60NO6mb80=", cert)
 
 	err := lib.walletLib.SpvSync("")
 	if err != nil {

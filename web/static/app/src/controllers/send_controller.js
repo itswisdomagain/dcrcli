@@ -1,5 +1,6 @@
 import { Controller } from 'stimulus'
 import axios from 'axios'
+import { show, hide } from '../utils'
 
 export default class extends Controller {
   static get targets () {
@@ -57,7 +58,7 @@ export default class extends Controller {
     this.destinationCount++
 
     if (this.destinationCount > 1) {
-      this.show(this.removeDestinationButtonTarget)
+      show(this.removeDestinationButtonTarget)
     }
   }
 
@@ -135,7 +136,7 @@ export default class extends Controller {
       _this.calculateCustomInputsPercentage()
     }, (errMsg) => {
       uncheckCurrentMaxCheckbox()
-      _this.setErrorMessage(errMsg)
+      _this.setDestinationFieldError(amountField, errMsg, false)
     })
   }
 
@@ -158,8 +159,7 @@ export default class extends Controller {
           _this.setErrorMessage(result.error)
         }
       })
-      .catch(e => {
-        console.log(e)
+      .catch(() => {
         if (errorCallback) {
           errorCallback('A server error occurred')
         } else {
@@ -174,28 +174,43 @@ export default class extends Controller {
 
     for (const addressTarget of this.addressTargets) {
       if (addressTarget.value === '') {
-        addressTarget.nextElementSibling.innerText = 'Destination address should not be empty'
-        addressTarget.classList.add('is-invalid')
+        this.setDestinationFieldError(addressTarget, 'Destination address should not be empty', false)
         fieldsAreValid = false
       } else {
-        addressTarget.nextElementSibling.innerText = ''
-        addressTarget.classList.remove('is-invalid')
+        this.clearDestinationFieldError(addressTarget)
       }
     }
 
     for (const amountTarget of this.amountTargets) {
       const amount = parseFloat(amountTarget.value)
       if (isNaN(amount) || amount <= 0) {
-        amountTarget.nextElementSibling.innerText = 'Amount must be a non-zero positive number'
-        amountTarget.classList.add('is-invalid')
+        this.setDestinationFieldError(amountTarget, 'Amount must be a non-zero positive number', true)
         fieldsAreValid = false
       } else {
-        amountTarget.nextElementSibling.innerText = ''
         amountTarget.classList.remove('is-invalid')
       }
     }
 
     return fieldsAreValid
+  }
+
+  setDestinationFieldError (element, errorMessage, append) {
+    const errorElement = element.parentElement.parentElement.lastElementChild
+    if (append && errorElement.innerText !== '') {
+      errorElement.innerText += `, ${errorMessage.toLowerCase()}`
+    } else {
+      errorElement.innerText = errorMessage
+    }
+
+    // element.classList.add('is-invalid')
+    show(errorElement)
+  }
+
+  clearDestinationFieldError (element) {
+    const errorElement = element.parentElement.parentElement.lastElementChild
+    errorElement.innerText = ''
+    hide(errorElement)
+    element.classList.remove('is-invalid')
   }
 
   removeDestination () {
@@ -223,7 +238,7 @@ export default class extends Controller {
     }
 
     if (this.destinationCount <= 1) {
-      this.hide(this.removeDestinationButtonTarget)
+      hide(this.removeDestinationButtonTarget)
     }
   }
 
@@ -243,12 +258,12 @@ export default class extends Controller {
   }
 
   resetCustomInputsAndChangeOutputs () {
-    this.show(this.fetchingUtxosTarget)
+    show(this.fetchingUtxosTarget)
 
     $('#custom-inputs').slideUp()
     this.customInputsTableTarget.innerHTML = ''
 
-    this.hide(this.changeOutputsTarget)
+    hide(this.changeOutputsTarget)
     this.useRandomChangeOutputsTarget.checked = false
     this.numberOfChangeOutputsTarget.value = ''
     this.generatedChangeOutputsTarget.innerHTML = ''
@@ -275,8 +290,8 @@ export default class extends Controller {
       })
 
       _this.customInputsTableTarget.innerHTML = utxos.join('')
-      _this.hide(this.fetchingUtxosTarget)
-      _this.show(_this.changeOutputsTarget)
+      hide(this.fetchingUtxosTarget)
+      show(_this.changeOutputsTarget)
     }
 
     const accountNumber = this.sourceAccountTarget.value
@@ -405,7 +420,7 @@ export default class extends Controller {
         _this.generatedChangeOutputsTarget.appendChild(template)
       })
 
-      _this.show(_this.generatedChangeOutputsTarget)
+      show(_this.generatedChangeOutputsTarget)
     })
   }
 
@@ -480,6 +495,9 @@ export default class extends Controller {
   validateSendForm () {
     this.errorsTarget.innerHTML = ''
     let valid = this.destinationFieldsValid()
+    if (!valid) {
+      this.showError('Please correct issues with destination addresses and amounts')
+    }
 
     if (this.sourceAccountTarget.value === '') {
       this.showError('The source account is required')
@@ -578,28 +596,20 @@ export default class extends Controller {
 
   setErrorMessage (message) {
     this.errorMessageTarget.innerHTML = message
-    this.hide(this.successMessageTarget)
-    this.show(this.errorMessageTarget)
+    hide(this.successMessageTarget)
+    show(this.errorMessageTarget)
   }
 
   setSuccessMessage (message) {
     this.successMessageTarget.innerHTML = message
-    this.hide(this.errorMessageTarget)
-    this.show(this.successMessageTarget)
+    hide(this.errorMessageTarget)
+    show(this.successMessageTarget)
   }
 
   clearMessages () {
-    this.hide(this.errorMessageTarget)
-    this.hide(this.successMessageTarget)
+    hide(this.errorMessageTarget)
+    hide(this.successMessageTarget)
     this.errorsTarget.innerHTML = ''
-  }
-
-  hide (el) {
-    el.classList.add('d-none')
-  }
-
-  show (el) {
-    el.classList.remove('d-none')
   }
 
   showError (error) {
