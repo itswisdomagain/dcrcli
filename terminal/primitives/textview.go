@@ -32,7 +32,7 @@ func (t *TextView) SetBorder(show bool) *TextView {
 	return t
 }
 
-// HasBorder returns true if this textview is set to have borders
+// HasBorder returns true if this textView is set to have borders
 func (t *TextView) HasBorder() bool {
 	return t.border
 }

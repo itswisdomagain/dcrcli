@@ -118,7 +118,7 @@ func main() {
 	shutdownWaitGroup.Wait()
 }
 
-//function for writing to stdOut and file simultanously
+//function for writing to stdOut and file simultaneously
 func logInfo(message string) {
 	log.Info(message)
 	fmt.Println(message)
