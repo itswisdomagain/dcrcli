@@ -50,11 +50,12 @@ func receivePage(wallet walletcore.Wallet, hintTextView *primitives.TextView, se
 			return
 		}
 
-		qrCodeTextView.SetText(qr.ToSmallString(false))
 		addressTextView.SetText(address)
+		qrCodeTextView.SetText(qr.ToSmallString(false))
 
-		body.AddItem(qrCodeTextView, 19, 0, true)
-		body.AddItem(addressTextView, 0, 1, true)
+		body.AddItem(addressTextView, 3, 0, true)
+		body.AddItem(qrCodeTextView, 19, 1, true)
+
 	}
 
 	accountNumbers := make([]uint32, len(accounts))
