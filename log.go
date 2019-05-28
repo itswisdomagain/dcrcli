@@ -55,8 +55,8 @@ var (
 	cliLog     = backendLog.Logger("CLI")
 	terLog     = backendLog.Logger("TER")
 	fyneLogger = backendLog.Logger("FYN")
-	dcrLibLog  = backendLog.Logger("dcrlib")
-	dcrWallet  = backendLog.Logger("dcrwall")
+	dcrLibLog  = backendLog.Logger("DCRLIB")
+	dcrWallet  = backendLog.Logger("DCRWALL")
 )
 
 // Initialize package-global logger variables.
@@ -79,7 +79,7 @@ var subsystemLoggers = map[string]slog.Logger{
 	"TER":  terLog,
 	"FYN":  fyneLogger,
 	"DCRL": dcrLibLog,
-	"DCRW": dcrWallet,
+	"WPRC": dcrWallet,
 }
 
 // initLogRotator initializes the logging rotater to write logs to logFile and
