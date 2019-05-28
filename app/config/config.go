@@ -80,6 +80,7 @@ func LoadConfig() (*Config, []string, error) {
 	// parse command-line args and return any error encountered
 	unknownArgs, err := parser.Parse()
 	if err != nil {
+		err = fmt.Errorf("see godcr help or godcr -h for supported command-line flags/options %s", err.Error())
 		return nil, nil, err
 	}
 
