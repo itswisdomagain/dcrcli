@@ -15,6 +15,7 @@ import (
 	"github.com/raedahgroup/dcrlibwallet/txindex"
 	"github.com/raedahgroup/dcrlibwallet/utils"
 	"github.com/raedahgroup/godcr/app/config"
+	"github.com/raedahgroup/godcr/app/walletmediums/dcrwalletrpc/dcrwalletlog"
 	"google.golang.org/grpc/codes"
 )
 
@@ -48,12 +49,12 @@ func Connect(ctx context.Context, cfg *config.Config) (walletRPCClient *WalletRP
 
 	walletRPCClient, err = createConnection(ctx, cfg.WalletRPCServer, cfg.WalletRPCCert, cfg.NoWalletRPCTLS)
 	if err == nil {
-		return
+		dcrwalletlog.LogError(err)
 	}
 
 	walletRPCClient = parseDcrWalletConfigAndConnect(ctx, cfg.WalletRPCCert, cfg.NoWalletRPCTLS)
 	if walletRPCClient != nil {
-		return
+		dcrwalletlog.LogError(err)
 	}
 
 	walletRPCClient = connectToDefaultAddresses(ctx, cfg.WalletRPCCert, cfg.NoWalletRPCTLS)
@@ -119,7 +120,7 @@ func openWalletIfExist(ctx context.Context, c *WalletRPCClient, appDataDir strin
 
 		walletExists, openWalletError := c.WalletExists()
 		if openWalletError != nil || !walletExists {
-			return
+			dcrwalletlog.LogError(openWalletError)
 		}
 
 		_, openWalletError = c.walletLoader.OpenWallet(context.Background(), &walletrpc.OpenWalletRequest{})

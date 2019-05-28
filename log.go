@@ -14,6 +14,8 @@ import (
 
 	"github.com/decred/slog"
 	"github.com/jrick/logrotate/rotator"
+	"github.com/raedahgroup/godcr/app/walletmediums/dcrlibwallet/dcrliblog"
+	"github.com/raedahgroup/godcr/app/walletmediums/dcrwalletrpc/dcrwalletlog"
 	"github.com/raedahgroup/godcr/cli/clilog"
 	fyneLog "github.com/raedahgroup/godcr/fyne/log"
 	"github.com/raedahgroup/godcr/nuklear/nuklog"
@@ -53,8 +55,8 @@ var (
 	cliLog     = backendLog.Logger("CLI")
 	terLog     = backendLog.Logger("TER")
 	fyneLogger = backendLog.Logger("FYN")
-	dcrliblog  = backendLog.Logger("dcrlib")
-	dcrwallet  = backendLog.Logger("dcrwall")
+	dcrLibLog  = backendLog.Logger("dcrlib")
+	dcrWallet  = backendLog.Logger("dcrwall")
 )
 
 // Initialize package-global logger variables.
@@ -64,8 +66,8 @@ func init() {
 	weblog.UseLogger(webLog)
 	terlog.UseLogger(terLog)
 	fyneLog.UseLogger(fyneLogger)
-	dcrliblog.UseLogger(dcrliblog)
-	dcrwallet.Uselogger(dcrwallet)
+	dcrliblog.UseLogger(dcrLibLog)
+	dcrwalletlog.UseLogger(dcrWallet)
 }
 
 // subsystemLoggers maps each subsystem identifier to its associated logger.
@@ -76,8 +78,8 @@ var subsystemLoggers = map[string]slog.Logger{
 	"CLI":  cliLog,
 	"TER":  terLog,
 	"FYN":  fyneLogger,
-	"DCRB": dcrliblog,
-	"DCRW": dcrwallet,
+	"DCRL": dcrLibLog,
+	"DCRW": dcrWallet,
 }
 
 // initLogRotator initializes the logging rotater to write logs to logFile and

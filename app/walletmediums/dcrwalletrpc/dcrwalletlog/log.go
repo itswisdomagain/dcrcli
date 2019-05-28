@@ -6,7 +6,6 @@ package dcrwalletlog
 
 import "github.com/decred/slog"
 
-
 // log is a logger that is initialized with no output filters.  This
 // means the package will not perform any logging by default until the caller
 // requests it.
@@ -29,4 +28,3 @@ func DisableLog() {
 func UseLogger(logger slog.Logger) {
 	log = logger
 }
-
