@@ -11,6 +11,7 @@ github.com/Sereal/Sereal v0.0.0-20181211220259-509a78ddbda3/go.mod h1:D0JMgToj/W
 github.com/aarzilli/nucular v0.0.0-20190403084742-0071461892e4 h1:v7eVtJ0ycKmpNgiB7DMGz5zLwzES+0i/RyIfbT16has=
 github.com/aarzilli/nucular v0.0.0-20190403084742-0071461892e4/go.mod h1:KI8zBeoLu/Y4Jx1qXSlldLCfZ/TCR8VRmkjPqldnfo0=
 github.com/aarzilli/nucular v0.0.0-20190902135428-56f96409e78a/go.mod h1:wGdJsPGGsknzeob6x436MChSy8DAom5UxdzUTjNCNDw=
+github.com/aarzilli/nucular v0.0.0-20191004125635-0f0b2bda58e2/go.mod h1:wGdJsPGGsknzeob6x436MChSy8DAom5UxdzUTjNCNDw=
 github.com/aead/siphash v0.0.0-20170329201724-e404fcfc8885/go.mod h1:Nywa3cDsYNNK3gaciGTWPwHt0wlpNV15vwmswBAUSII=
 github.com/agl/ed25519 v0.0.0-20170116200512-5312a6153412 h1:w1UutsfOrms1J05zt7ISrnJIXKzwaspym5BTKGx93EI=
 github.com/agl/ed25519 v0.0.0-20170116200512-5312a6153412/go.mod h1:WPjqKcmVOxf0XSf3YxCJs6N6AOSrOx3obionmG7T0y0=
@@ -64,11 +65,13 @@ github.com/decred/dcrd/chaincfg v1.5.1 h1:u1Xbq0VTnAXIHW5ECqrWe0VYSgf5vWHqpSiwoL
 github.com/decred/dcrd/chaincfg v1.5.1/go.mod h1:FukMzTjkwzjPU+hK7CqDMQe3NMbSZAYU5PAcsx1wlv0=
 github.com/decred/dcrd/chaincfg/chainhash v1.0.1 h1:0vG7U9+dSjSCaHQKdoSKURK2pOb47+b+8FK5q4+Je7M=
 github.com/decred/dcrd/chaincfg/chainhash v1.0.1/go.mod h1:OVfvaOsNLS/A1y4Eod0Ip/Lf8qga7VXCQjUQLbkY0Go=
+github.com/decred/dcrd/chaincfg/chainhash v1.0.2/go.mod h1:BpbrGgrPTr3YJYRN3Bm+D9NuaFd+zGyNeIKgrhCXK60=
 github.com/decred/dcrd/chaincfg/v2 v2.0.2 h1:VeGY52lHuYT01tIGbvYj+OO0GaGxGaJmnh+4vGca1+U=
 github.com/decred/dcrd/chaincfg/v2 v2.0.2/go.mod h1:hpKvhLCDAD/xDZ3V1Pqpv9fIKVYYi11DyxETguazyvg=
 github.com/decred/dcrd/connmgr v1.0.1/go.mod h1:jR+woh3BTbP/35v0nHMiz6GfV1RO0uF1JA+mKeXNk04=
 github.com/decred/dcrd/connmgr v1.0.2 h1:ipHJBV9fmhLi8ZZCtsNpG+kLY2c+yu59/8oOkA8BNJY=
 github.com/decred/dcrd/connmgr v1.0.2/go.mod h1:jBNfQLh+454n3crgNCPrhMgZ9mVvYcMbWSCEAHsJQus=
+github.com/decred/dcrd/crypto/blake256 v1.0.0/go.mod h1:sQl2p6Y26YV+ZOcSTP6thNdn47hh8kt6rqSlvmrXFAc=
 github.com/decred/dcrd/database v1.0.0/go.mod h1:eQOhTdO3oYBshjCVxMt747CP6yKKIls6IIdqYxMRzEk=
 github.com/decred/dcrd/database v1.0.1/go.mod h1:ILCeyOHFew3fZ7K2B9jl+tp5qFOap/pEGoo6Yy6Wk0g=
 github.com/decred/dcrd/database v1.0.2/go.mod h1:ILCeyOHFew3fZ7K2B9jl+tp5qFOap/pEGoo6Yy6Wk0g=
@@ -232,6 +235,7 @@ github.com/gobuffalo/packr/v2 v2.6.0 h1:EMUzJIb5rof6r087PtGmgdzdLKpRBESJ/8jyL9Me
 github.com/gobuffalo/packr/v2 v2.6.0/go.mod h1:sgEE1xNZ6G0FNN5xn9pevVu4nywaxHvgup67xisti08=
 github.com/gobuffalo/packr/v2 v2.7.0 h1:snQei95nVOAtgY8rMiccTIPPYUXkuQws34FM/9/+UVg=
 github.com/gobuffalo/packr/v2 v2.7.0/go.mod h1:I+ICQFYFNPqTT7CUw7/RfMhluz683BO8FLH0wZgh/pQ=
+github.com/gobuffalo/packr/v2 v2.7.1/go.mod h1:qYEvAazPaVxy7Y7KR0W8qYEE+RymX74kETFqjFoFlOc=
 github.com/goki/freetype v0.0.0-20181231101311-fa8a33aabaff h1:W71vTCKoxtdXgnm1ECDFkfQnpdqAO00zzGXLA5yaEX8=
 github.com/goki/freetype v0.0.0-20181231101311-fa8a33aabaff/go.mod h1:wfqRWLHRBsRgkp5dmbG56SA0DmVtwrF5N3oPdI8t+Aw=
 github.com/golang/freetype v0.0.0-20161208064710-d9be45aaf745/go.mod h1:E/TSTwGwJL78qG/PmXZO1EjYhfJinVAhrmmHX6Z8B9k=
@@ -366,6 +370,7 @@ golang.org/x/image v0.0.0-20190501045829-6d32002ffd75 h1:TbGuee8sSq15Iguxu4deQ7+
 golang.org/x/image v0.0.0-20190501045829-6d32002ffd75/go.mod h1:kZ7UVZpmo3dzQBMxlp+ypCbDeSB+sBbTgSJuh5dn5js=
 golang.org/x/image v0.0.0-20190802002840-cff245a6509b/go.mod h1:FeLwcggjj3mMvU+oOTbSwawSJRM1uh48EjtB4UJZlP0=
 golang.org/x/image v0.0.0-20190902063713-cb417be4ba39/go.mod h1:FeLwcggjj3mMvU+oOTbSwawSJRM1uh48EjtB4UJZlP0=
+golang.org/x/image v0.0.0-20190910094157-69e4b8554b2a/go.mod h1:FeLwcggjj3mMvU+oOTbSwawSJRM1uh48EjtB4UJZlP0=
 golang.org/x/mobile v0.0.0-20190312151609-d3739f865fa6/go.mod h1:z+o9i4GpDbdi3rU15maQ/Ox0txvL9dWGYEHz965HBQE=
 golang.org/x/mobile v0.0.0-20190318164015-6bd122906c08 h1:REhdg1qxVTaAJcvh9BOGNgt2kd+KiUZ148XXlLp08FU=
 golang.org/x/mobile v0.0.0-20190318164015-6bd122906c08/go.mod h1:E/iHnbuqvinMTCcRqshq8CkpyQDoeVncDDYHnLhea+o=
@@ -413,6 +418,7 @@ golang.org/x/tools v0.0.0-20190312151545-0bb0c0a6e846/go.mod h1:LCzVGOaR6xXOjkQ3
 golang.org/x/tools v0.0.0-20190628153133-6cdbf07be9d0/go.mod h1:/rFqwRUd4F7ZHNgwSSTFct+R/Kf4OFW1sUzUTQQTgfc=
 golang.org/x/tools v0.0.0-20190816200558-6889da9d5479/go.mod h1:b+2E5dAYhXwXZwtnZ6UAqBI28+e2cm9otk0dWdXHAEo=
 golang.org/x/tools v0.0.0-20190930152728-90aeebe84374/go.mod h1:b+2E5dAYhXwXZwtnZ6UAqBI28+e2cm9otk0dWdXHAEo=
+golang.org/x/tools v0.0.0-20191004055002-72853e10c5a3/go.mod h1:b+2E5dAYhXwXZwtnZ6UAqBI28+e2cm9otk0dWdXHAEo=
 golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 google.golang.org/appengine v1.4.0/go.mod h1:xpcJRLb0r/rnEns0DIKYYv+WjYCduHsrkT7/EB5XEv4=
 google.golang.org/appengine v1.5.0/go.mod h1:xpcJRLb0r/rnEns0DIKYYv+WjYCduHsrkT7/EB5XEv4=
