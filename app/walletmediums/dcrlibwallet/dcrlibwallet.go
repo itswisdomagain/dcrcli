@@ -8,6 +8,7 @@ import (
 	"github.com/decred/dcrwallet/netparams"
 	"github.com/raedahgroup/dcrlibwallet"
 	"github.com/raedahgroup/dcrlibwallet/utils"
+	"github.com/raedahgroup/godcr/app/walletmediums/dcrlibwallet/dcrliblog"
 )
 
 // DcrWalletLib implements `WalletMiddleware` using `dcrlibwallet.LibWallet` as medium for connecting to a decred wallet
@@ -65,7 +66,7 @@ func openWalletIfExist(ctx context.Context, walletLib *dcrlibwallet.LibWallet) e
 
 		walletExists, openWalletError := walletLib.WalletExists()
 		if openWalletError != nil || !walletExists {
-			return
+			dcrliblog.LogError(openWalletError)
 		}
 
 		// open wallet with default public passphrase: "public"
